@@ -64,6 +64,9 @@ In the future, Regulus will be a stable and optimized for games. It will at leas
   - Reflection and refraction according to Snell's law
   - Wavelength-dependent refraction
   - Refraction indices
+- Solver integrators, including:
+  - Gauss-Seidel solver
+  - Correction solver with selectable collision correctors
 - Island solver
 - Solver iterations
 - Parallel axis theorem for inertia of compound colliders
