@@ -71,6 +71,7 @@ public class ConstraintPhysicsTest implements TestCase {
             .addTo( world )
             .makeStatic()
             .position( 0, - 5 )
+            .restitution( 0.3 )
             .build( new ColoredBody( TestColors.STATIC ) );
 
         Body.builder()
@@ -78,6 +79,7 @@ public class ConstraintPhysicsTest implements TestCase {
             .addTo( world )
             .makeStatic()
             .position( - 5, 0 )
+            .restitution( 0.3 )
             .build( new ColoredBody( TestColors.STATIC ) );
 
         Body.builder()
@@ -85,12 +87,14 @@ public class ConstraintPhysicsTest implements TestCase {
             .addTo( world )
             .makeStatic()
             .position( 5, 0 )
+            .restitution( 0.3 )
             .build( new ColoredBody( TestColors.STATIC ) );
 
         Body body = Body.builder()
                         .collider( ICollider.box().size( 0.4, 4 ) )
                         .density( 1 )
                         .rotation( 1 )
+                        .restitution( 0.3 )
                         .addTo( world )
                         .build( new ColoredBody( TestColors.ROPE ) );
 
@@ -98,6 +102,7 @@ public class ConstraintPhysicsTest implements TestCase {
                         .collider( ICollider.circle().radius( 0.3 ) )
                         .density( 1 )
                         .position( ( Math.random() - Math.random() ) * 3, 0 )
+                        .restitution( 0.3 )
                         .addTo( world )
                         .build( new ColoredBody( TestColors.randomColor() ) );
 
@@ -123,6 +128,7 @@ public class ConstraintPhysicsTest implements TestCase {
                 )
                 .density( 1 )
                 .position( ( Math.random() - Math.random() ) * 3, 2 + i * 1.5 + Math.random() )
+                .restitution( 0.3 )
                 .addTo( world )
                 .build( new ColoredBody( TestColors.randomColor() ) );
 
@@ -133,6 +139,7 @@ public class ConstraintPhysicsTest implements TestCase {
                 )
                 .density( 1 )
                 .position( ( Math.random() - Math.random() ) * 3, 2 + i * 1.5 + Math.random() )
+                .restitution( 0.3 )
                 .addTo( world )
                 .build( new ColoredBody( TestColors.randomColor() ) );
 
@@ -140,6 +147,7 @@ public class ConstraintPhysicsTest implements TestCase {
                 .collider( ICollider.circle().radius( 0.3 ) )
                 .density( 1 )
                 .position( ( Math.random() - Math.random() ) * 3, 2 + i * 1.5 + Math.random() )
+                .restitution( 0.3 )
                 .addTo( world )
                 .build( new ColoredBody( TestColors.randomColor() ) );
 
@@ -147,6 +155,7 @@ public class ConstraintPhysicsTest implements TestCase {
                 .collider( ICollider.regularPoly().radius( 0.3 ).sides( (int) ( Math.random() * 7 ) + 3 ) )
                 .density( 1 )
                 .position( ( Math.random() - Math.random() ) * 3, 2 + i * 1.5 + Math.random() )
+                .restitution( 0.3 )
                 .addTo( world )
                 .build( new ColoredBody( TestColors.randomColor() ) );
 
@@ -154,6 +163,7 @@ public class ConstraintPhysicsTest implements TestCase {
                 .collider( ICollider.box().size( 0.6, 0.3 ) )
                 .density( 1 )
                 .position( ( Math.random() - Math.random() ) * 3, 2 + i * 1.5 + Math.random() )
+                .restitution( 0.3 )
                 .addTo( world )
                 .build( new ColoredBody( TestColors.randomColor() ) );
         }
