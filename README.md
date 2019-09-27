@@ -8,6 +8,26 @@ I'd like to encourage you that this project is very experimental and may not wor
 ## What is Regulus
 Regulus is a starting rigid body physics engine written in Java. Regulus is in early development stages and should not be used for professional development right now. In it's current state, Regulus is unstable, does not perform very well and may come up with several bugs or even crashes. Currently, it only supports basic rigid body simulation and a few simple constraints. 
 
+### Features
+- Collision detection with SAT
+- Rigid body impulse resolution
+- Compound bodies
+- Constraints, including:
+  - Axle constraints
+  - Distance constraints
+  - Spring constraints
+- Basic shapes, including:
+  - Circles
+  - Boxes
+  - Capsules
+  - Regular polygons
+  - Custom convex polygons
+  - Infinite planes
+  - Infinite bars
+- Basic time scaling
+- Basic particle systems (experimental)
+- Simple broadphase with AABBs
+
 ## Regulus' future
 In the future, Regulus will be a stable and optimized for games. It will at least include the following features:
 - Stable, fast and sustainable collision correction (current implementation is very basic)
