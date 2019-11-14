@@ -457,7 +457,7 @@ public class Vec2 implements Cloneable {
      */
     public double angle( Vec2 v ) {
         notnull( v );
-        return Math.acos( dot( v ) );
+        return Math.acos( dot( v ) / ( mag() * v.mag() ) );
     }
 
     /**
@@ -557,6 +557,7 @@ public class Vec2 implements Cloneable {
             return new Vec2( x, y );
         return out.set( x, y );
     }
+
     /**
      * Convenience method to put values into a specific vector instance, or a new one if null. This also solves the need
      * of using extra locals when swapping coordinates (e.g. for calculating perpendicular vector).
