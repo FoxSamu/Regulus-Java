@@ -2,7 +2,6 @@ package net.regulus.simulation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 
 import net.regulus.detection.sat.SAT;
@@ -42,7 +41,6 @@ public class World {
                 collisionDetection( bodyA, bodyB );
             }
         }
-        collisions.sort( Comparator.comparing( c -> -c.getCenter().dot( gravity ) ) );
         for( CollisionSet collision : collisions ) {
             collision.resolve( dt );
         }

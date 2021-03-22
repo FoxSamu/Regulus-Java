@@ -9,10 +9,7 @@ import java.awt.Color;
 
 import net.regulus.collider.ICollider;
 import net.regulus.collider.PlaneCollider;
-import net.regulus.geom.Vec2;
 import net.regulus.simulation.Body;
-import net.regulus.simulation.Collision;
-import net.regulus.simulation.CollisionSet;
 import net.regulus.simulation.World;
 
 public class StackTest implements TestCase {
@@ -25,7 +22,7 @@ public class StackTest implements TestCase {
 
     @Override
     public void draw( CanvasContext ctx, double mouseX, double mouseY ) {
-        ctx.fills( false ).outlines( true );
+        ctx.fills( true ).outlines( false );
 
         for( Body b : world.bodies ) {
             if( b instanceof ColoredBody ) {
@@ -34,26 +31,26 @@ public class StackTest implements TestCase {
             }
         }
 
-        Vec2 vec = new Vec2();
-        for ( CollisionSet collisionSet : world.collisions ) {
-            for ( Collision collision : collisionSet.collisions) {
-                ctx.color( Color.WHITE );
-                for( Vec2.IContext vecC : collision.pointsA ) {
-                    vecC.get( vec );
-
-                    ctx.drawPoint( vec, 3 );
-                    ctx.drawNormal( collision.normal, vec, 10 );
-                }
-
-                Vec2 antiNormal = collision.normal.neg( new Vec2() );
-                for( Vec2.IContext vecC : collision.pointsB ) {
-                    vecC.get( vec );
-
-                    ctx.drawPoint( vec, 3 );
-                    ctx.drawNormal( antiNormal, vec, 10 );
-                }
-            }
-        }
+//        Vec2 vec = new Vec2();
+//        for ( CollisionSet collisionSet : world.collisions ) {
+//            for ( Collision collision : collisionSet.collisions) {
+//                ctx.color( Color.WHITE );
+//                for( Vec2.IContext vecC : collision.pointsA ) {
+//                    vecC.get( vec );
+//
+//                    ctx.drawPoint( vec, 3 );
+//                    ctx.drawNormal( collision.normal, vec, 10 );
+//                }
+//
+//                Vec2 antiNormal = collision.normal.neg( new Vec2() );
+//                for( Vec2.IContext vecC : collision.pointsB ) {
+//                    vecC.get( vec );
+//
+//                    ctx.drawPoint( vec, 3 );
+//                    ctx.drawNormal( antiNormal, vec, 10 );
+//                }
+//            }
+//        }
     }
 
     @Override
@@ -94,12 +91,37 @@ public class StackTest implements TestCase {
 
         for( int i = 0; i < 15; i++ ) {
             Body.builder()
-                .collider( ICollider.box().size( 1, 1 ) )
+                .collider( ICollider.box().size( 0.7, 0.7 ) )
                 .density( 1 )
-                .position( 0, 2 + i * 1.5 )
+                .position( 0.05 * (Math.random() - Math.random()), 2 + i * 1.5 )
                 .addTo( world )
                 .build( new ColoredBody( TestColors.randomColor() ) );
         }
+
+//        Body.builder()
+//            .collider( ICollider.box().size( 3, 0.7 ) )
+//            .density( 1 )
+//            .position( 0.6, 2 + 30 * 1.5 )
+//            .rotation( 0.2 )
+//            .addTo( world )
+//            .build( new ColoredBody( TestColors.randomColor() ) );
+//
+//
+//        Body.builder()
+//            .collider( ICollider.circle().radius( 0.8 ) )
+//            .density( 1 )
+//            .position( -3, 2 + 20 * 1.5 )
+//            .rotation( 0.2 )
+//            .addTo( world )
+//            .build( new ColoredBody( TestColors.randomColor() ) );
+//
+//        Body.builder()
+//            .collider( ICollider.regularPoly().radius( 0.8 ).sides( 6 ) )
+//            .density( 1 )
+//            .position( 3, 2 + 25 * 1.5 )
+//            .rotation( 0.2 )
+//            .addTo( world )
+//            .build( new ColoredBody( TestColors.randomColor() ) );
     }
 
     @Override

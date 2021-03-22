@@ -21,7 +21,7 @@ public class BasicPhysicsTest implements TestCase {
 
     @Override
     public void draw( CanvasContext ctx, double mouseX, double mouseY ) {
-        ctx.fills( false ).outlines( true );
+        ctx.fills( true ).outlines( false );
 
         for( Body b : world.bodies ) {
             if( b instanceof ColoredBody ) {
