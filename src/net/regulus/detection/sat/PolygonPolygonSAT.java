@@ -167,7 +167,7 @@ public final class PolygonPolygonSAT {
         }
 
 
-        // FInd best edge for B
+        // Find best edge for B
         normal.neg( normal );
 
         for( int i = 0; i < sizeB; i++ ) {

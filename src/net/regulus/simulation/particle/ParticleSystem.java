@@ -129,7 +129,7 @@ public class ParticleSystem {
                 normalImpulse /= contactAmount;
 
                 normal.mul( normalImpulse, impulse );
-                body.applyImpulse( impulse.neg( v1 ), contactA, false );
+                body.addImpulse( impulse.neg( v1 ), contactA, false );
                 particle.velocity.add( impulse.mul( particle.invMass(), v1 ), particle.velocity );
 
 
@@ -154,7 +154,7 @@ public class ParticleSystem {
 
                 tangent.mul( tangentImpulse, impulse );
 
-                body.applyImpulse( impulse.neg( v1 ), contactA, true );
+                body.addImpulse( impulse.neg( v1 ), contactA, true );
                 particle.velocity.add( impulse.mul( particle.invMass(), v1 ), particle.velocity );
             }
         }

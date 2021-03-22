@@ -30,6 +30,7 @@ public final class Main implements MenuListener {
     private boolean paused = false;
 
     private final List<TestCase> testCases = Arrays.asList(
+        new StackTest(),
         new ConstraintPhysicsTest(),
         new CapsuleBoxSATTest(),
         new CapsuleBarSATTest(),

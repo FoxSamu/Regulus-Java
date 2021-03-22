@@ -6,7 +6,7 @@ public final class MathUtil {
      * considered as zero. This value is used to fight rounding errors that cause a double to be non-zero in a condition
      * where they theoretically should.
      */
-    public static final double EPSILON = 0.00001;
+    public static final double EPSILON = 0.0000001;
 
     public static final double SQRT_2 = 1.4142135623730950488;
     public static final double HALF_SQRT_2 = SQRT_2 / 2.0;

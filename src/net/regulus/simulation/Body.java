@@ -2,22 +2,27 @@ package net.regulus.simulation;
 
 import java.util.Arrays;
 
-import net.regulus.collider.SimpleCollider;
 import net.regulus.collider.CircleCollider;
 import net.regulus.collider.CompoundCollider;
 import net.regulus.collider.ICollider;
+import net.regulus.collider.SimpleCollider;
 import net.regulus.geom.Mat3;
+import net.regulus.geom.MathUtil;
 import net.regulus.geom.Vec2;
 
 public class Body {
     public final Vec2 position = new Vec2();
     public final Vec2 velocity = new Vec2();
     public final Vec2 positionalVel = new Vec2();
+    public final Vec2 totalImpulse = new Vec2();
+    public final Vec2 totalCorrection = new Vec2();
 
     protected ICollider collider;
 
     public double rotation;
     public double rotationVelo;
+    public double rotationTotalImpulse;
+    public double rotationTotalCorrection;
 
     public final Mass mass = new Mass( this );
 
@@ -61,11 +66,19 @@ public class Body {
         return pt.rotate( rotation, out ).add( position, out );
     }
 
-    public void applyImpulse( Vec2 impulse, Vec2 contact, boolean rotational ) {
-        velocity.add( impulse.mul( mass.getInvMass(), v ), velocity );
+    public void addImpulse( Vec2 impulse, Vec2 contact, boolean rotational ) {
+        totalImpulse.add( impulse, totalImpulse );
         // Normal-impulse should never cause circles to rotate, though it does... Special check here for circles...
         if( ! ( collider instanceof CircleCollider && ! rotational ) ) {
-            rotationVelo += mass.getInvInertia() * contact.cross( impulse );
+            rotationTotalImpulse += contact.cross( impulse );
+        }
+    }
+
+    public void addCorrection( Vec2 impulse, Vec2 contact, boolean rotational ) {
+        totalCorrection.add( impulse, totalCorrection );
+        // Normal-impulse should never cause circles to rotate, though it does... Special check here for circles...
+        if( ! ( collider instanceof CircleCollider && ! rotational ) ) {
+            rotationTotalCorrection += contact.cross( impulse );
         }
     }
 
@@ -79,11 +92,25 @@ public class Body {
         return velocity.sub( Vec2.cross( - rotationVelo, point, v ), out );
     }
 
+    public void applyTotalCorrection() {
+        position.add( MathUtil.tryMakeZero( totalCorrection.mul( mass.getInvMass(), v ) ), position );
+        rotation += MathUtil.tryMakeZero( rotationTotalCorrection * mass.getInvInertia() );
+        totalCorrection.set( 0, 0 );
+        rotationTotalCorrection = 0;
+    }
+
+    public void applyTotalImpulse() {
+        velocity.add( MathUtil.tryMakeZero( totalImpulse.mul( mass.getInvMass(), v ) ), velocity );
+        rotationVelo += MathUtil.tryMakeZero( rotationTotalImpulse * mass.getInvInertia() );
+        totalImpulse.set( 0, 0 );
+        rotationTotalImpulse = 0;
+    }
+
     public static Builder builder() {
         return new Builder();
     }
 
-    public static class Builder {
+    public static class Builder { // I'm a bodybuilder yay
         private static final int DENSITY = 0;
         private static final int MASS = 1;
         private static final int INV_MASS = 2;

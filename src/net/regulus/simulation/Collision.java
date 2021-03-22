@@ -6,12 +6,16 @@ import net.regulus.geom.Vec2;
 import net.regulus.geom.VectorList;
 
 public class Collision {
-    private final Body bodyA;
-    private final Body bodyB;
-    private final Vec2 normal;
-    private final double depth;
-    private final VectorList pointsA;
-    private final VectorList pointsB;
+    public final Body bodyA;
+    public final Body bodyB;
+    public final Vec2 normal;
+    public final double depth;
+    public final VectorList pointsA;
+    public final VectorList pointsB;
+
+    private double accumulatedCorrectionImpulse;
+
+    private Vec2 center;
 
     public Collision( Body a, Body b, CollisionPrimer primer ) {
         this.bodyA = a;
@@ -22,7 +26,7 @@ public class Collision {
         this.pointsB = primer.collisionB;
     }
 
-    public void resolve( double dt ) {
+    public void resolve( double dt, double scale ) {
         // All vector instantiations are moved out of the loop to keep allocation amount low
         Vec2 v1 = new Vec2();
         Vec2 v2 = new Vec2();
@@ -58,10 +62,13 @@ public class Collision {
             double normalImpulse = - ( 1 + restitution ) * velAlongNormal;
             normalImpulse /= invSum;
             normalImpulse /= contactAmount;
+            normalImpulse /= scale;
 
             normal.mul( normalImpulse, impulse );
-            bodyA.applyImpulse( impulse.neg( v1 ), contactA, false );
-            bodyB.applyImpulse( impulse, contactB, false );
+
+            MathUtil.tryMakeZero( impulse );
+            bodyA.addImpulse( impulse.neg( v1 ), contactA, false );
+            bodyB.addImpulse( impulse, contactB, false );
 
 
             // FRICTION
@@ -82,6 +89,7 @@ public class Collision {
             double tangentImpulse = - velAlongTangent;
             tangentImpulse /= invSum;
             tangentImpulse /= contactAmount;
+            tangentImpulse /= scale;
             tangentImpulse = MathUtil.tryMakeZero( tangentImpulse );
 
             double mu = MathUtil.pythagoreanSolve( bodyA.staticFriction, bodyB.staticFriction );
@@ -93,20 +101,81 @@ public class Collision {
                 tangent.mul( - normalImpulse * dynaFriction, impulse );
             }
 
-            bodyA.applyImpulse( impulse.neg( v1 ), contactA, true );
-            bodyB.applyImpulse( impulse, contactB, true );
+            MathUtil.tryMakeZero( impulse );
+            bodyA.addImpulse( impulse.neg( v1 ), contactA, true );
+            bodyB.addImpulse( impulse, contactB, true );
         }
     }
 
-    public void correct() {
+    public void correct( double scale ) {
+        double baumgarte = 0.6;
+        double allowedPenetration = 0.001;
+        double maxLinearCorrection = 0.5;
         double percent = 0.2;
-        double slop = 0.01;
+        double slop = 0;
 
-        Vec2 correction = normal.mul( Math.max( depth - slop, 0 ) / ( bodyA.mass.getInvMass() + bodyB.mass.getInvMass() ) * percent, null );
-        Vec2 use = new Vec2();
-        bodyA.positionalVel.add( correction.mul( bodyA.mass.getInvMass(), use ), bodyA.positionalVel );
-        bodyB.positionalVel.sub( correction.mul( bodyB.mass.getInvMass(), use ), bodyB.positionalVel );
-        bodyA.position.add( correction.mul( bodyA.mass.getInvMass(), use ), bodyA.position );
-        bodyB.position.sub( correction.mul( bodyB.mass.getInvMass(), use ), bodyB.position );
+        Vec2 v1 = new Vec2();
+        Vec2 v2 = new Vec2();
+        Vec2 rv = new Vec2();
+        Vec2 impulse = new Vec2();
+        Vec2 tangent = new Vec2();
+        Vec2 contactA = new Vec2();
+        Vec2 contactB = new Vec2();
+        Vec2 diff = new Vec2();
+
+        int contactAmount = pointsA.size();
+
+        for( int i = 0; i < contactAmount; i ++ ) {
+            pointsA.get( i, contactA );
+            pointsB.get( i, contactB );
+
+            contactB.sub( contactA, diff );
+            double penetration = -diff.dot( normal );
+
+            contactA.sub( bodyA.position, contactA );
+            contactB.sub( bodyB.position, contactB );
+
+            double racn = contactA.cross( normal );
+            double rbcn = contactB.cross( normal );
+            double invMassSum = bodyA.mass.getInvMass() + bodyB.mass.getInvMass();
+            double invInrtSum = racn * racn * bodyA.mass.getInvInertia() + rbcn * rbcn * bodyB.mass.getInvInertia();
+            double invSum = invMassSum + invInrtSum;
+
+            double correctionScale = baumgarte * MathUtil.clamp(-maxLinearCorrection, 0.0, penetration + allowedPenetration);
+
+            double correctionImpulse = -correctionScale / invSum;
+            //correctionImpulse /= contactAmount;
+            //correctionImpulse /= scale;
+
+            Vec2 correction = normal.mul( correctionImpulse, v2 );
+            bodyA.addCorrection( correction, contactA, false );
+            bodyB.addCorrection( correction.neg( v1 ), contactB, false );
+        }
+
+        bodyA.applyTotalCorrection();
+        bodyB.applyTotalCorrection();
+
+//        Vec2 correction = normal.mul( Math.max( depth - slop, 0 ) / ( bodyA.mass.getInvMass() + bodyB.mass.getInvMass() ) * percent, null );
+//        Vec2 use = new Vec2();
+//        bodyA.positionalVel.add( correction.mul( bodyA.mass.getInvMass(), use ), bodyA.positionalVel );
+//        bodyB.positionalVel.sub( correction.mul( bodyB.mass.getInvMass(), use ), bodyB.positionalVel );
+//        bodyA.position.add( correction.mul( bodyA.mass.getInvMass(), use ), bodyA.position );
+//        bodyB.position.sub( correction.mul( bodyB.mass.getInvMass(), use ), bodyB.position );
+    }
+
+    public Vec2 getCenter() {
+        if (center == null) {
+            center = new Vec2();
+            Vec2 v = new Vec2();
+            for (Vec2.IContext context : pointsA) {
+                context.get( v ).add( center, center );
+            }
+            for (Vec2.IContext context : pointsB) {
+                context.get( v ).add( center, center );
+            }
+
+            center.div( pointsA.size() + pointsB.size(), center );
+        }
+        return center;
     }
 }

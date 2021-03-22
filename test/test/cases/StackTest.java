@@ -7,16 +7,20 @@ import test.TestColors;
 import javax.swing.JMenu;
 import java.awt.Color;
 
-import net.regulus.collider.*;
+import net.regulus.collider.ICollider;
+import net.regulus.collider.PlaneCollider;
+import net.regulus.geom.Vec2;
 import net.regulus.simulation.Body;
+import net.regulus.simulation.Collision;
+import net.regulus.simulation.CollisionSet;
 import net.regulus.simulation.World;
 
-public class BasicPhysicsTest implements TestCase {
+public class StackTest implements TestCase {
     private World world;
 
     @Override
     public String getName() {
-        return "Basic Physics Test";
+        return "Stack Test";
     }
 
     @Override
@@ -27,6 +31,27 @@ public class BasicPhysicsTest implements TestCase {
             if( b instanceof ColoredBody ) {
                 ctx.color( ( (ColoredBody) b ).color );
                 ctx.drawCollider( b.getCollider() );
+            }
+        }
+
+        Vec2 vec = new Vec2();
+        for ( CollisionSet collisionSet : world.collisions ) {
+            for ( Collision collision : collisionSet.collisions) {
+                ctx.color( Color.WHITE );
+                for( Vec2.IContext vecC : collision.pointsA ) {
+                    vecC.get( vec );
+
+                    ctx.drawPoint( vec, 3 );
+                    ctx.drawNormal( collision.normal, vec, 10 );
+                }
+
+                Vec2 antiNormal = collision.normal.neg( new Vec2() );
+                for( Vec2.IContext vecC : collision.pointsB ) {
+                    vecC.get( vec );
+
+                    ctx.drawPoint( vec, 3 );
+                    ctx.drawNormal( antiNormal, vec, 10 );
+                }
             }
         }
     }
@@ -67,54 +92,11 @@ public class BasicPhysicsTest implements TestCase {
         ground.restitution = 0;
         world.add( ground );
 
-        ground = new ColoredBody();
-        BoxCollider groundCollider = new BoxCollider();
-        groundCollider.setSize( 10, 0.4 );
-        groundCollider.setRotationOffset( - 0.3 );
-        ground.setCollider( groundCollider );
-        ground.mass.setStatic();
-        ground.position.set( - 2.5, 0 );
-        ground.restitution = 0;
-        world.add( ground );
-
         for( int i = 0; i < 15; i++ ) {
             Body.builder()
-                .collider(
-                    ICollider.capsule().radius( 0.2 ).length( 0.4 )
-                )
+                .collider( ICollider.box().size( 1, 1 ) )
                 .density( 1 )
-                .position( ( Math.random() - Math.random() ) * 3, 2 + i * 1.5 + Math.random() )
-                .addTo( world )
-                .build( new ColoredBody( TestColors.randomColor() ) );
-
-            Body.builder()
-                .collider(
-                    ICollider.box().size( 0.8, 0.2 ).build(),
-                    ICollider.box().size( 0.2, 0.8 ).build()
-                )
-                .density( 1 )
-                .position( ( Math.random() - Math.random() ) * 3, 2 + i * 1.5 + Math.random() )
-                .addTo( world )
-                .build( new ColoredBody( TestColors.randomColor() ) );
-
-            Body.builder()
-                .collider( ICollider.circle().radius( 0.3 ) )
-                .density( 1 )
-                .position( ( Math.random() - Math.random() ) * 3, 2 + i * 1.5 + Math.random() )
-                .addTo( world )
-                .build( new ColoredBody( TestColors.randomColor() ) );
-
-            Body.builder()
-                .collider( ICollider.regularPoly().radius( 0.3 ).sides( (int) ( Math.random() * 7 ) + 3 ) )
-                .density( 1 )
-                .position( ( Math.random() - Math.random() ) * 3, 2 + i * 1.5 + Math.random() )
-                .addTo( world )
-                .build( new ColoredBody( TestColors.randomColor() ) );
-
-            Body.builder()
-                .collider( ICollider.box().size( 0.6, 0.3 ) )
-                .density( 1 )
-                .position( ( Math.random() - Math.random() ) * 3, 2 + i * 1.5 + Math.random() )
+                .position( 0, 2 + i * 1.5 )
                 .addTo( world )
                 .build( new ColoredBody( TestColors.randomColor() ) );
         }

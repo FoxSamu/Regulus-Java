@@ -36,9 +36,9 @@ public class SpringConstraint extends LinkingConstraint {
         normal.mul( j, impulse );
 
         if( bodyA != null )
-            bodyA.applyImpulse( impulse.neg( v1 ), ptA, true );
+            bodyA.addImpulse( impulse.neg( v1 ), ptA, true );
         if( bodyB != null )
-            bodyB.applyImpulse( impulse, ptB, true );
+            bodyB.addImpulse( impulse, ptB, true );
     }
 
     @Override
